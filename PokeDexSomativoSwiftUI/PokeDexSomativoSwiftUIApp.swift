@@ -11,15 +11,15 @@ import SwiftData
 @main
 struct PokeDexSomativoSwiftUIApp: App {
     @State private var path: [String] = []
-    @StateObject private var obrasVM = ObrasViewModel()
+    @StateObject private var PokemonVM = PokemonListViewModel()
     var appState = AppState()
 
     var body: some Scene {
         WindowGroup {
             if let _ = appState.usuarioLogado {
                 NavigationStack(path: $path) {
-                    ListaObrasView(path: $path)
-                        .environmentObject(obrasVM)
+                    PokemonListView(path: $path)
+                        .environmentObject(PokemonVM)
                 }
                 .environment(appState)
             } else {
