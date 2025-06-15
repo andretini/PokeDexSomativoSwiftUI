@@ -3,6 +3,8 @@ import SwiftUI
 struct PokemonDetailView: View {
     let url: String
     
+    @EnvironmentObject var favViewModel: FavoritosViewModel
+    
     @State private var pokemon: Pokemon?
     @State private var isLoading = true
     @State private var errorMessage: String?
@@ -31,6 +33,26 @@ struct PokemonDetailView: View {
                 Text("Height: \(pokemon.height)")
                 Text("Weight: \(pokemon.weight)")
                 Text("Base XP: \(pokemon.baseExperience)")
+                
+                
+                let idString = String(pokemon.id)
+
+                if favViewModel.ehFavorito(id: idString) {
+                    Button("Remover dos favoritos") {
+                        favViewModel.removerFavorito(id: idString)
+                    }
+                    .foregroundColor(.red)
+                } else {
+                    Button("Adicionar aos favoritos") {
+                        favViewModel.adicionarFavorito(
+                            id: idString,
+                            nome: pokemon.name,
+                            imagemURL: pokemon.sprites.frontDefault ?? "",
+                            pokemonURL: url
+                        )
+                    }
+                }
+                
             } else if let error = errorMessage {
                 Text("Error: \(error)")
                     .foregroundColor(.red)

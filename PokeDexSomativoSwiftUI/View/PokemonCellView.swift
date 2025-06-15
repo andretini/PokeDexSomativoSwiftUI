@@ -7,11 +7,12 @@
 import SwiftUI;
 
 struct PokemonCellView: View {
+    let imageUrl: String?
     let pokemon: NamedAPIResource
 
     var body: some View {
         VStack {
-            PokemonImageView(pokemonUrl: pokemon.url)
+            PokemonImageView(pokemonUrl: pokemon.url, image: imageUrl)
             Text(pokemon.name.capitalized)
                 .font(.headline)
                 .foregroundColor(.primary)

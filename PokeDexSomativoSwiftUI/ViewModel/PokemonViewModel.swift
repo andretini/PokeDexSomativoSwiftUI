@@ -10,12 +10,13 @@ class PokemonListViewModel: ObservableObject {
     private var offset = 0
     private var canLoadMore = true
     
+    private let API: String = "https://pokeapi.co/api/v2";
+    
     func fetchPokemons() async {
         guard canLoadMore else { return }
         isLoading = true
         errorMessage = nil
         
-        let API: String = "https://pokeapi.co/api/v2";
         let urlString = API + "/pokemon?limit=\(limit)&offset=\(offset)"
         guard let url = URL(string: urlString) else {
             errorMessage = "Invalid URL"
@@ -58,9 +59,22 @@ class PokemonListViewModel: ObservableObject {
             return nil
         }
     }
+    
     // 3. Fetch full Pokémon model from its URL
     func fetchPokemonData(pokemonUrl: String) async -> Pokemon? {
         guard let url = URL(string: pokemonUrl) else { return nil }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let pokemon = try JSONDecoder().decode(Pokemon.self, from: data)
+            return pokemon
+        } catch {
+            print("Error fetching Pokémon data: \(error.localizedDescription)")
+            return nil
+        }
+    }
+    
+    func fetchPokemonDataByName(name: String) async -> Pokemon? {
+        guard let url = URL(string: API + "pokemon/" + name) else { return nil }
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
             let pokemon = try JSONDecoder().decode(Pokemon.self, from: data)

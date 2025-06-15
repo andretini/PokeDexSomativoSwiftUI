@@ -3,6 +3,7 @@ import SwiftUI
 struct PokemonListView: View {
     @Binding var path: [String]                // navigation stack binding
     @EnvironmentObject var viewModel: PokemonListViewModel
+    @EnvironmentObject var favViewModel: FavoritosViewModel
     
     let columns = [
         GridItem(.adaptive(minimum: 150), spacing: 16)
@@ -16,9 +17,9 @@ struct PokemonListView: View {
                         let pokemon = viewModel.pokemons[index]
                         
                         NavigationLink(
-                            destination: PokemonDetailView(url: pokemon.url)
+                            destination: PokemonDetailView(url: pokemon.url).environmentObject(favViewModel)
                         ) {
-                            PokemonCellView(pokemon: pokemon)
+                            PokemonCellView(imageUrl: nil, pokemon: pokemon)
                                 .onAppear {
                                     // Trigger load more when the last item appears
                                     if index == viewModel.pokemons.count - 1 {
@@ -33,6 +34,21 @@ struct PokemonListView: View {
                 }
                 .padding()
             }
+            
+            NavigationLink(destination: FavoritosListView(path: $path)
+                .environmentObject(viewModel)
+                .environmentObject(favViewModel)
+            ) {
+                Text("Ver Favoritos")
+                    .font(.headline)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.blue.cornerRadius(8))
+                    .foregroundColor(.white)
+                    .padding(.horizontal)
+            }
+            .padding(.bottom)
+            
         }
         .navigationTitle("Pokémon List")
         .onAppear {
