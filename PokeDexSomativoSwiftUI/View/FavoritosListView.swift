@@ -8,40 +8,35 @@
 import SwiftUI
 
 struct FavoritosListView: View {
-    @Binding var path: [String]                // navigation stack binding
+    @Binding var path: [String]
     @EnvironmentObject var viewModel: PokemonListViewModel
     @EnvironmentObject var favViewModel: FavoritosViewModel
     
+    @Namespace private var animation
+    
     let columns = [
-        GridItem(.adaptive(minimum: 150), spacing: 16)
+        GridItem(.adaptive(minimum: 150), spacing: AppSpacing.large.rawValue)
     ]
     
     var body: some View {
         VStack {
             ScrollView {
-                LazyVGrid(columns: columns, spacing: 16) {
+                LazyVGrid(columns: columns, spacing: AppSpacing.large.rawValue) {
                     ForEach(favViewModel.favoritos) { favorito in
                         let pokemon = NamedAPIResource(name: favorito.nome, url: favorito.pokemonURL)
                         
-                        NavigationLink(destination: PokemonDetailView(url: pokemon.url).environmentObject(favViewModel)) {
-                            PokemonCellView(imageUrl: favorito.imagemURL, pokemon: pokemon).onAppear {
-                                print(pokemon.url)  // print aqui dentro é válido
-                            }
+                        NavigationLink(destination: PokemonDetailView(url: pokemon.url, animation: animation).environmentObject(favViewModel)) {
+                            PokemonCellView(imageUrl: favorito.imagemURL, pokemon: pokemon, animation: animation)
                         }
-
+                        .buttonStyle(.plain)
                     }
                 }
-                .padding()
+                .padding(AppSpacing.large.rawValue)
             }
         }
-        .navigationTitle("Pokémon List")
+        .navigationTitle("Meus Favoritos")
         .onAppear {
-            if favViewModel.favoritos.isEmpty {
-                Task {
-                    favViewModel.loadFavoritos()
-                }
-            }
+            favViewModel.loadFavoritos() 
         }
-
     }
 }
