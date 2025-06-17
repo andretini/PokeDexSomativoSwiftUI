@@ -28,7 +28,7 @@ enum AppColor {
         case .surface:
             return .white
         case .cellBackground:
-            return Color(red: 0.3, green: 0.65, blue: 0.3).opacity(0.2) // Verde claro para a célula
+            return Color(red: 1.0, green: 0.8, blue: 0.5).opacity(0.3) // amarelo claro para a célula
         case .error:
             return Color(red: 0.9, green: 0.17, blue: 0.17)
         case .success:
