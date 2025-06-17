@@ -17,28 +17,28 @@ struct LoginView: View {
     @State private var erro = ""
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: AppSpacing.xlarge.rawValue) {
             Text("Entrar")
-                .font(.largeTitle.bold())
-                .padding(.top, 40)
+                .font(AppFont.largeTitle.font())
+                .padding(.top, AppSpacing.xxlarge.rawValue)
 
-            VStack(spacing: 16) {
+            VStack(spacing: AppSpacing.large.rawValue) {
                 TextField("Email", text: $email)
                     .keyboardType(.emailAddress)
                     .autocapitalization(.none)
                     .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(10)
+                    .background(AppColor.background.color)
+                    .cornerRadius(AppCornerRadius.medium.rawValue)
 
                 SecureField("Senha", text: $senha)
                     .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(10)
+                    .background(AppColor.background.color)
+                    .cornerRadius(AppCornerRadius.medium.rawValue)
 
                 if !erro.isEmpty {
                     Text(erro)
-                        .foregroundColor(.red)
-                        .font(.caption)
+                        .foregroundColor(AppColor.error.color)
+                        .font(AppFont.caption.font())
                 }
 
                 Button(action: {
@@ -51,23 +51,29 @@ struct LoginView: View {
                     Text("Entrar")
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                        .shadow(radius: 4)
+                        .background(AppColor.primaryAction.color)
+                        .foregroundColor(AppColor.textOnPrimary.color)
+                        .cornerRadius(AppCornerRadius.medium.rawValue)
+                        .modifier(AppShadow(radius: 4))
                 }
 
                 NavigationLink("Criar nova conta", destination: CadastroView())
-                    .padding(.top, 10)
+                    .padding(.top, AppSpacing.medium.rawValue)
             }
             .padding()
-            .background(Color.white)
-            .cornerRadius(16)
-            .shadow(radius: 8)
+            .background(AppColor.surface.color)
+            .cornerRadius(AppCornerRadius.large.rawValue)
+            .modifier(AppShadow(radius: 8))
             .padding(.horizontal)
 
             Spacer()
         }
-        .background(LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.white]), startPoint: .top, endPoint: .bottom).ignoresSafeArea())
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: [AppColor.primaryAction.color.opacity(0.1), AppColor.surface.color]),
+                startPoint: .top,
+                endPoint: .bottom
+            ).ignoresSafeArea()
+        )
     }
 }
