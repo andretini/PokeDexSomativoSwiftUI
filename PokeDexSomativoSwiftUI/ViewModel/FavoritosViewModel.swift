@@ -12,50 +12,30 @@ import SwiftData
 class FavoritosViewModel: ObservableObject {
     @Published var favoritos: [Favorito] = []
 
-    private var context: ModelContext
+    private var service: FavoritoService
     private var emailUsuarioLogado: String
 
     init(context: ModelContext, usuarioEmail: String) {
-        self.context = context
+        self.service = FavoritoService(context: context)
         self.emailUsuarioLogado = usuarioEmail
         loadFavoritos()
     }
 
     func loadFavoritos() {
-        let descriptor = FetchDescriptor<Favorito>(
-            predicate: #Predicate { $0.usuarioEmail == emailUsuarioLogado }
-        )
-        do {
-            favoritos = try context.fetch(descriptor)
-        } catch {
-            print("Erro ao buscar favoritos: \(error)")
-        }
+        favoritos = service.carregarFavoritos(email: emailUsuarioLogado)
     }
 
     func adicionarFavorito(id: String, nome: String, imagemURL: String, pokemonURL: String) {
-        guard !favoritos.contains(where: { $0.id == id }) else { return }
-        let novo = Favorito(id: id, nome: nome, imagemURL: imagemURL, pokemonURL: pokemonURL, usuarioEmail: emailUsuarioLogado)
-        context.insert(novo)
-        do {
-            try context.save()
-            loadFavoritos()
-        } catch {
-            print("Erro ao salvar favorito: \(error)")
-        }
+        service.adicionar(id: id, nome: nome, imagemURL: imagemURL, pokemonURL: pokemonURL, usuarioEmail: emailUsuarioLogado)
+        loadFavoritos()
     }
 
     func removerFavorito(id: String) {
-        guard let favorito = favoritos.first(where: { $0.id == id }) else { return }
-        context.delete(favorito)
-        do {
-            try context.save()
-            loadFavoritos()
-        } catch {
-            print("Erro ao remover favorito: \(error)")
-        }
+        service.remover(id: id, usuarioEmail: emailUsuarioLogado)
+        loadFavoritos()
     }
 
     func ehFavorito(id: String) -> Bool {
-        favoritos.contains(where: { $0.id == id })
+        service.ehFavorito(id: id, usuarioEmail: emailUsuarioLogado)
     }
 }

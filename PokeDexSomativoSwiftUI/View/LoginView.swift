@@ -4,17 +4,14 @@
 //
 //  Created by user277041 on 6/10/25.
 //
-
 import SwiftUI
 import SwiftData
 
 struct LoginView: View {
     @Environment(AppState.self) var appState
-    @Query private var usuarios: [Usuario]
+    @Environment(\.modelContext) private var context
 
-    @State private var email = ""
-    @State private var senha = ""
-    @State private var erro = ""
+    @StateObject private var viewModel = LoginViewModel()
 
     var body: some View {
         VStack(spacing: AppSpacing.xlarge.rawValue) {
@@ -23,30 +20,26 @@ struct LoginView: View {
                 .padding(.top, AppSpacing.xxlarge.rawValue)
 
             VStack(spacing: AppSpacing.large.rawValue) {
-                TextField("Email", text: $email)
+                TextField("Email", text: $viewModel.email)
                     .keyboardType(.emailAddress)
                     .autocapitalization(.none)
                     .padding()
                     .background(AppColor.background.color)
                     .cornerRadius(AppCornerRadius.medium.rawValue)
 
-                SecureField("Senha", text: $senha)
+                SecureField("Senha", text: $viewModel.senha)
                     .padding()
                     .background(AppColor.background.color)
                     .cornerRadius(AppCornerRadius.medium.rawValue)
 
-                if !erro.isEmpty {
-                    Text(erro)
+                if !viewModel.erro.isEmpty {
+                    Text(viewModel.erro)
                         .foregroundColor(AppColor.error.color)
                         .font(AppFont.caption.font())
                 }
 
                 Button(action: {
-                    if let usuario = usuarios.first(where: { $0.email == email && $0.senha == senha }) {
-                        appState.usuarioLogado = usuario
-                    } else {
-                        erro = "Credenciais inválidas"
-                    }
+                    viewModel.autenticar(context: context, appState: appState)
                 }) {
                     Text("Entrar")
                         .frame(maxWidth: .infinity)

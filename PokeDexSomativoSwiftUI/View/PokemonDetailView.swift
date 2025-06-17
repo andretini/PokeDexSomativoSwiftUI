@@ -1,4 +1,3 @@
-// Views/PokemonDetailView.swift
 import SwiftUI
 
 struct PokemonDetailView: View {
@@ -6,16 +5,13 @@ struct PokemonDetailView: View {
     let animation: Namespace.ID
 
     @EnvironmentObject var favViewModel: FavoritosViewModel
-    @State private var pokemon: Pokemon?
-    @State private var isLoading = true
-    @State private var errorMessage: String?
-    @State private var isImageVisible = false
+    @StateObject private var viewModel = PokemonDetailViewModel()
 
     var body: some View {
         VStack(spacing: AppSpacing.xlarge.rawValue) {
-            if isLoading {
-                PulsingPokeballView() // Ótimo, usando a view customizada!
-            } else if let pokemon = pokemon {
+            if viewModel.isLoading {
+                PulsingPokeballView()
+            } else if let pokemon = viewModel.pokemon {
                 Text(pokemon.name.capitalized)
                     .font(AppFont.largeTitle.font())
 
@@ -26,10 +22,9 @@ struct PokemonDetailView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 150, height: 150)
-                            // Animações na imagem
                             .matchedGeometryEffect(id: pokemon.name, in: animation)
-                            .opacity(isImageVisible ? 1 : 0)
-                            .scaleEffect(isImageVisible ? 1 : 0.5)
+                            .opacity(viewModel.isImageVisible ? 1 : 0)
+                            .scaleEffect(viewModel.isImageVisible ? 1 : 0.5)
                     } placeholder: {
                         ProgressView()
                     }
@@ -38,7 +33,7 @@ struct PokemonDetailView: View {
                 Text("Height: \(pokemon.height)")
                 Text("Weight: \(pokemon.weight)")
                 Text("Base XP: \(pokemon.baseExperience)")
-                
+
                 let idString = String(pokemon.id)
                 let isFavorito = favViewModel.ehFavorito(id: idString)
 
@@ -64,53 +59,19 @@ struct PokemonDetailView: View {
                 }
                 .padding(.top, AppSpacing.medium.rawValue)
 
-            } else if let error = errorMessage {
+            } else if let error = viewModel.errorMessage {
                 Text("Error: \(error)")
                     .foregroundColor(AppColor.error.color)
             }
         }
         .padding()
         .task {
-            // 👈 O .task agora apenas chama a função, que tem a lógica completa.
-            await fetchPokemon()
+            await viewModel.fetchPokemon(from: url)
         }
-        .navigationTitle(pokemon?.name.capitalized ?? "Detalhes")
+        .navigationTitle(viewModel.pokemon?.name.capitalized ?? "Detalhes")
         .navigationBarTitleDisplayMode(.inline)
     }
-    
-    // 👇 A função fetchPokemon() foi reescrita para controlar a animação corretamente.
-    func fetchPokemon() async {
-        // 1. Reinicia o estado da animação e ativa o loading
-        isImageVisible = false
-        isLoading = true
-        errorMessage = nil
-
-        guard let url = URL(string: url) else {
-            errorMessage = "Invalid URL"
-            isLoading = false
-            return
-        }
-
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            let decoded = try JSONDecoder().decode(Pokemon.self, from: data)
-            
-            // 2. Define o pokemon e desativa o loading
-            pokemon = decoded
-            isLoading = false
-            
-            // 3. Ativa a animação da imagem APÓS os dados terem sido carregados
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
-                isImageVisible = true
-            }
-            
-        } catch {
-            errorMessage = "Failed to load Pokémon details: \(error.localizedDescription)"
-            isLoading = false
-        }
-    }
 }
-
 
 struct PulsingPokeballView: View {
     @State private var isAnimating = false
