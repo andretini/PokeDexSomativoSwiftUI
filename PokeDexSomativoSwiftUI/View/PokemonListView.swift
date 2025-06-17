@@ -1,38 +1,40 @@
+// Views/PokemonListView.swift
 import SwiftUI
 
 struct PokemonListView: View {
-    @Binding var path: [String]                // navigation stack binding
+    @Binding var path: [String]
     @EnvironmentObject var viewModel: PokemonListViewModel
     @EnvironmentObject var favViewModel: FavoritosViewModel
     
+    @Namespace private var animation
+    
     let columns = [
-        GridItem(.adaptive(minimum: 150), spacing: 16)
+        GridItem(.adaptive(minimum: 150), spacing: AppSpacing.large.rawValue)
     ]
     
-    var body: some View {	
+    var body: some View {
         VStack {
             ScrollView {
-                LazyVGrid(columns: columns, spacing: 16) {
+                LazyVGrid(columns: columns, spacing: AppSpacing.large.rawValue) {
                     ForEach(viewModel.pokemons.indices, id: \.self) { index in
                         let pokemon = viewModel.pokemons[index]
                         
                         NavigationLink(
-                            destination: PokemonDetailView(url: pokemon.url).environmentObject(favViewModel)
+                            destination: PokemonDetailView(url: pokemon.url, animation: animation).environmentObject(favViewModel)
                         ) {
-                            PokemonCellView(imageUrl: nil, pokemon: pokemon)
+                            PokemonCellView(imageUrl: nil, pokemon: pokemon, animation: animation)
                                 .onAppear {
-                                    // Trigger load more when the last item appears
                                     if index == viewModel.pokemons.count - 1 {
                                         Task {
                                             await viewModel.fetchPokemons()
                                         }
                                     }
                                 }
-                            
                         }
+                        .buttonStyle(.plain)
                     }
                 }
-                .padding()
+                .padding(AppSpacing.large.rawValue)
             }
             
             NavigationLink(destination: FavoritosListView(path: $path)
@@ -40,15 +42,15 @@ struct PokemonListView: View {
                 .environmentObject(favViewModel)
             ) {
                 Text("Ver Favoritos")
-                    .font(.headline)
+                    .font(AppFont.title.font())
                     .padding()
                     .frame(maxWidth: .infinity)
-                    .background(Color.blue.cornerRadius(8))
-                    .foregroundColor(.white)
+                    .background(AppColor.secondaryAction.color)
+                    .foregroundColor(AppColor.textOnPrimary.color)
+                    .cornerRadius(AppCornerRadius.medium.rawValue) 
                     .padding(.horizontal)
             }
             .padding(.bottom)
-            
         }
         .navigationTitle("Pokémon List")
         .onAppear {
@@ -58,6 +60,5 @@ struct PokemonListView: View {
                 }
             }
         }
-
     }
 }
