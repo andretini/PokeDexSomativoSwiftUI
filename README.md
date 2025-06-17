@@ -68,3 +68,7 @@ O projeto adota uma arquitetura baseada em **MVVM (Model-View-ViewModel)**, comp
 3.  **Execute o Aplicativo:**
       * Selecione um simulador de iOS ou um dispositivo físico.
       * Pressione o botão "Run" (▶) no Xcode para compilar e executar o aplicativo.
+
+-----
+
+[Assista ao vídeo no YouTube](https://youtu.be/EySWHf10E-o)
